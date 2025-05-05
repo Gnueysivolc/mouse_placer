@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 
 def detect_boxes_and_lines(image_path, display):
     # 1. Load the image
@@ -11,12 +10,18 @@ def detect_boxes_and_lines(image_path, display):
         return
     original = image.copy()
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gamma = 0.2  # >1 makes image darker
+    darker = np.uint8(255 * (gray/255) ** (1/gamma))
+
     cv2.imshow("grayed", gray)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    cv2.imshow("darker", darker)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
     # 2. Preprocess (blur + edge detection)
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
+    blur = cv2.GaussianBlur(darker, (5, 5), 0)
     edges = cv2.Canny(blur, 50, 150)
     cv2.imshow("blur and edged", edges)
     cv2.waitKey(0)
@@ -58,4 +63,6 @@ def detect_boxes_and_lines(image_path, display):
 
 
 # Run the detector
+detect_boxes_and_lines("yt.png", "white.png")
 detect_boxes_and_lines("wb.png", "white.png")
+detect_boxes_and_lines("ok.png", "white.png")
