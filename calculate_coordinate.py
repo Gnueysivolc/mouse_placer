@@ -4,6 +4,8 @@ import numpy as np
 import cv2
 import pyautogui
 import time 
+import keyboard
+from pynput.keyboard import Key, Listener
 
 time.sleep(5)
 image = fetch.get_current_status()
@@ -43,7 +45,7 @@ def calculate_midpoint(x1, y1, w1, h1, x2, y2, w2, h2, relationship):
     y_dist = max(y1, y2) - min(y1 + h1, y2 + h2) if y1 + h1 < y2 or y2 + h2 < y1 else 0
     closest_distance = max(x_dist, y_dist)  # Minimum separation
 
-    if closest_distance < 50:
+    if closest_distance < 20:
         return None  # Skip if too close
 
     area1 = w1 * h1
@@ -69,8 +71,16 @@ def compare_all_rectangles(x_coords, y_coords, widths, heights):
     n = len(x_coords)
     final = []
 
+    print("Starting comparison...")
+
     for i in range(n):
+
+        print(f"Comparing rectangle {i} with others...")
+
         for j in range(i + 1, n):
+            
+            print(f"Comparing with rectangle {j}...")
+
             x1, y1, w1, h1 = x_coords[i], y_coords[i], widths[i], heights[i]
             x2, y2, w2, h2 = x_coords[j], y_coords[j], widths[j], heights[j]
             
@@ -85,7 +95,61 @@ def compare_all_rectangles(x_coords, y_coords, widths, heights):
 results = compare_all_rectangles(x_coords, y_coords, widths, heights)
 
 # Print the results
-for (i, j, (mid_x, mid_y)) in results:
-    pyautogui.moveTo(mid_x, mid_y)
-    cv2.waitKey()
+continue_execution = True
+pause_loop = False
 
+def on_press(key):
+    global continue_execution, pause_loop
+    
+    if key == Key.enter:
+        print("Continuing to next rectangle...")
+        pause_loop = False  # Resume the loop
+    elif key == Key.esc:
+        print("Exiting program...")
+        continue_execution = False  # Stop everything
+        return False  # This stops the listener
+
+# Start the keyboard listener in non-blocking mode
+listener = Listener(on_press=on_press)
+listener.start()
+
+for i, j, (mid_x, mid_y) in results:
+    if not continue_execution:
+        break
+        
+    # Move to adjusted position
+    pyautogui.moveTo(mid_x - 2, mid_y - 6, duration=0.1)
+    print(f"Moved to Rectangles {i} & {j} at ({mid_x-2:.1f}, {mid_y-6:.1f})")
+    print("Press ENTER to continue or ESC to quit")
+    
+    # Pause until Enter is pressed
+    pause_loop = True
+    while pause_loop and continue_execution:
+        pass  # Busy wait (minimal CPU usage)
+
+# Clean up
+listener.stop()
+
+    
+
+print(x_coords)
+print(y_coords)
+
+
+
+
+
+
+
+
+
+print("done")
+
+"""
+need to customize framsize, 
+and exit key and aauto close window
+turning off?
+
+
+
+"""

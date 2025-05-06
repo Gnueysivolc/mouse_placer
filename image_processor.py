@@ -3,8 +3,15 @@ import numpy as np
 
 def detect_boxes_and_lines(image_path, display):
     # 1. Load the image
-    image = cv2.imread(image_path)
-    display = cv2.imread(display)
+
+    ima1 = cv2.imread(image_path)
+    dis1 = cv2.imread(display)
+
+
+
+
+    image = cv2.resize(ima1, (1709, 1106))
+    display = cv2.resize(dis1, (1709, 1106))
     if image is None:
         print("Error: Image not found!")
         return
@@ -45,7 +52,7 @@ def detect_boxes_and_lines(image_path, display):
             x, y, w, h = cv2.boundingRect(contour)
         
         # Only store if both width and height meet minimum requirements
-            if w*h >= 10000:
+            if w*h >= 7500:
                 x_coords.append(x)
                 y_coords.append(y)
                 widths.append(w)
