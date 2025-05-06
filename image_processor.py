@@ -45,7 +45,7 @@ def detect_boxes_and_lines(image_path, display):
             x, y, w, h = cv2.boundingRect(contour)
         
         # Only store if both width and height meet minimum requirements
-            if w >= MIN_WIDTH and h >= MIN_HEIGHT:
+            if w*h >= 10000:
                 x_coords.append(x)
                 y_coords.append(y)
                 widths.append(w)
@@ -57,12 +57,16 @@ def detect_boxes_and_lines(image_path, display):
     cv2.imshow("lines", display)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    
+    return x_coords, y_coords, widths, heights
 
     
 
 
 
 # Run the detector
+"""
 detect_boxes_and_lines("yt.png", "white.png")
 detect_boxes_and_lines("wb.png", "white.png")
 detect_boxes_and_lines("ok.png", "white.png")
+"""
