@@ -4,8 +4,9 @@ import numpy as np
 import cv2
 import pyautogui
 import time 
-import keyboard
-from pynput.keyboard import Key, Listener
+import sys
+import tty
+import termios
 
 time.sleep(5)
 image = fetch.get_current_status()
@@ -94,43 +95,42 @@ def compare_all_rectangles(x_coords, y_coords, widths, heights):
 
 results = compare_all_rectangles(x_coords, y_coords, widths, heights)
 
-# Print the results
-continue_execution = True
-pause_loop = False
 
-def on_press(key):
-    global continue_execution, pause_loop
-    
-    if key == Key.enter:
-        print("Continuing to next rectangle...")
-        pause_loop = False  # Resume the loop
-    elif key == Key.esc:
-        print("Exiting program...")
-        continue_execution = False  # Stop everything
-        return False  # This stops the listener
+# Control flags
+def get_key():
+    """Get single key press without Enter (Unix/Mac compatible)"""
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        ch = sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return ch
 
-# Start the keyboard listener in non-blocking mode
-listener = Listener(on_press=on_press)
-listener.start()
-
+print("Press ENTER to move to next coordinate, 'o' to exit")
 for i, j, (mid_x, mid_y) in results:
-    if not continue_execution:
-        break
-        
     # Move to adjusted position
-    pyautogui.moveTo(mid_x - 2, mid_y - 6, duration=0.1)
-    print(f"Moved to Rectangles {i} & {j} at ({mid_x-2:.1f}, {mid_y-6:.1f})")
-    print("Press ENTER to continue or ESC to quit")
+    pyautogui.moveTo(mid_x-2, mid_y-6, duration=0.1)
+    print(f"Moved to rectangle pair {i}-{j} at ({mid_x-2:.1f}, {mid_y-6:.1f})")
     
-    # Pause until Enter is pressed
-    pause_loop = True
-    while pause_loop and continue_execution:
-        pass  # Busy wait (minimal CPU usage)
+    # Wait for key press
+    print("Waiting for input (ENTER=continue, o=exit)...")
+    while True:
+        key = get_key()
+        if key == '\r':  # ENTER pressed
+            print("Continuing...")
+            break
+        elif key.lower() == 'o':
+            print("Exiting program")
+            sys.exit(0)
+        # Add slight delay to prevent CPU overload
+        time.sleep(0.1)
 
-# Clean up
-listener.stop()
 
-    
+
+
+
 
 print(x_coords)
 print(y_coords)
