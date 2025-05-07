@@ -1,15 +1,12 @@
 import cv2
 import numpy as np
 
-def detect_boxes_and_lines(image_path, display):
+
+
+def detect_boxes_and_lines(image_path, dis1):
     # 1. Load the image
 
     ima1 = cv2.imread(image_path)
-    dis1 = cv2.imread(display)
-
-
-
-
     image = cv2.resize(ima1, (1709, 1106))
     display = cv2.resize(dis1, (1709, 1106))
     if image is None:
